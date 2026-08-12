@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/', async(req, res) => {
-    res.send({ message: 'FridgeChef API läuft!' });
+router.get('/ingredients', async (req, res) => {
+    res.send([]);
 });
 
 module.exports = router;
