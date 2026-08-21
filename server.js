@@ -1,41 +1,59 @@
 require('dotenv').config();
 
 const express = require('express');
+
 const cors = require('cors');
+
 const mongoose = require('mongoose');
+
 const routes = require('./routes');
 
+const recipeRoutes = require('./recipeRoutes');
+
+
 const app = express();
+
 const PORT = 3000;
 
 
-// MongoDB-Verbindung
+// MongoDB verbinden
 mongoose.connect(
-    process.env.DB_CONNECTION,
-    { dbName: process.env.DATABASE }
+  process.env.DB_CONNECTION,
+  {
+    dbName: process.env.DATABASE
+  }
 );
+
 
 const db = mongoose.connection;
 
-db.on('error', (error) => {
-    console.log(error);
-});
 
-db.once('open', () => {
-    console.log('Mit MongoDB verbunden');
-});
+// MongoDB-Fehler
+db.on('error',(error) => {   console.log(error);
+
+  }
+);
 
 
-// Middleware
-app.use(express.json());
+// Erfolgreiche MongoDB-Verbindung
+db.once('open',() => { console.log('Mit MongoDB verbunden');});
+
+
+// JSON aus Requests lesen
+app.use( express.json());
+
+
+// CORS erlauben
 app.use(cors());
 
 
-// API-Routen
-app.use('/api', routes);
+// Zutaten-Routen
+app.use('/api',routes);
+
+
+// Rezept-Routen
+app.use('/api/recipes',recipeRoutes);
 
 
 // Server starten
-app.listen(PORT, () => {
-    console.log(`Server läuft auf Port ${PORT}`);
-});
+app.listen(PORT, () => { console.log(`Server läuft auf Port ${PORT}`); });
