@@ -1,15 +1,10 @@
 require('dotenv').config();
-
 const express = require('express');
-
 const cors = require('cors');
-
 const mongoose = require('mongoose');
-
 const routes = require('./routes');
-
 const recipeRoutes = require('./recipeRoutes');
-
+const matchingRoutes = require('./matchingRoutes');
 
 const app = express();
 
@@ -28,32 +23,37 @@ mongoose.connect(
 const db = mongoose.connection;
 
 
-// MongoDB-Fehler
-db.on('error',(error) => {   console.log(error);
-
-  }
-);
+db.on('error', error => {
+  console.log(error);
+});
 
 
-// Erfolgreiche MongoDB-Verbindung
-db.once('open',() => { console.log('Mit MongoDB verbunden');});
+db.once('open', () => {
+  console.log('Mit MongoDB verbunden');
+});
 
 
 // JSON aus Requests lesen
-app.use( express.json());
+app.use(express.json());
 
 
-// CORS erlauben
+// Angular-Zugriff erlauben
 app.use(cors());
 
 
-// Zutaten-Routen
-app.use('/api',routes);
+// Zutaten
+app.use('/api', routes);
 
 
-// Rezept-Routen
-app.use('/api/recipes',recipeRoutes);
+// Rezepte
+app.use('/api/recipes', recipeRoutes);
+
+
+// Matching
+app.use('/api/matching', matchingRoutes);
 
 
 // Server starten
-app.listen(PORT, () => { console.log(`Server läuft auf Port ${PORT}`); });
+app.listen(PORT, () => {
+  console.log(`Server läuft auf Port ${PORT}`);
+});
