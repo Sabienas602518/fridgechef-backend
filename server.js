@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -11,49 +12,65 @@ const app = express();
 const PORT = 3000;
 
 
+// Middleware
+app.use(express.json());
+app.use(cors());
+
+
+// API-Routen
+app.use('/api', routes);
+
+app.use(
+  '/api/recipes',
+  recipeRoutes
+);
+
+app.use(
+  '/api/matching',
+  matchingRoutes
+);
+
+
+// Unbekannte API-Route
+app.use((req, res) => {
+
+  res.status(404).send({
+    message: 'Route nicht gefunden'
+  });
+
+});
+
+
 // MongoDB verbinden
 mongoose.connect(
   process.env.DB_CONNECTION,
   {
-    dbName: process.env.DATABASE
+    dbName:
+      process.env.DATABASE
   }
-);
+)
+.then(() => {
 
+  console.log(
+    'Mit MongoDB verbunden'
+  );
 
-const db = mongoose.connection;
+})
+.catch(error => {
 
+  console.error(
+    'MongoDB-Verbindung fehlgeschlagen:',
+    error.message
+  );
 
-db.on('error', error => {
-  console.log(error);
 });
-
-
-db.once('open', () => {
-  console.log('Mit MongoDB verbunden');
-});
-
-
-// JSON aus Requests lesen
-app.use(express.json());
-
-
-// Angular-Zugriff erlauben
-app.use(cors());
-
-
-// Zutaten
-app.use('/api', routes);
-
-
-// Rezepte
-app.use('/api/recipes', recipeRoutes);
-
-
-// Matching
-app.use('/api/matching', matchingRoutes);
 
 
 // Server starten
 app.listen(PORT, () => {
-  console.log(`Server läuft auf Port ${PORT}`);
+
+  console.log(
+    `Server läuft auf Port ${PORT}`
+  );
+
 });
