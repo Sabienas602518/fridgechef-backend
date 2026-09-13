@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const routes = require('./routes');
 const recipeRoutes = require('./recipeRoutes');
 const matchingRoutes = require('./matchingRoutes');
+const onlineRecipeRoutes = require('./onlineRecipeRoutes');
 
 const app = express();
 
@@ -29,11 +30,20 @@ app.use('/api/recipes', recipeRoutes);
 app.use('/api/matching', matchingRoutes);
 
 
+// Online-Rezepte
+app.use(
+  '/api/online-recipes',
+  onlineRecipeRoutes
+);
+
+
 // Unbekannte API-Route
 app.use((req, res) => {
+
   res.status(404).send({
     message: 'Route nicht gefunden'
   });
+
 });
 
 
@@ -45,19 +55,27 @@ mongoose.connect(
   }
 )
 .then(() => {
-  console.log('Mit MongoDB verbunden');
+
+  console.log(
+    'Mit MongoDB verbunden'
+  );
+
 })
 .catch(error => {
+
   console.error(
     'MongoDB-Verbindung fehlgeschlagen:',
     error.message
   );
+
 });
 
 
 // Server starten
 app.listen(PORT, () => {
+
   console.log(
     `Server läuft auf Port ${PORT}`
   );
+
 });
