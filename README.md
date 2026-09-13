@@ -6,6 +6,9 @@ Das Backend stellt eine REST-API bereit, über die Zutaten und Rezepte erstellt,
 
 Zusätzlich enthält FridgeChef eine Matching-Logik. Dabei werden die Zutaten eines Rezeptes mit dem aktuellen Vorrat verglichen. Die Anwendung bestimmt, welche Zutaten vorhanden oder fehlend sind und berechnet daraus einen Match-Prozentwert.
 
+Neben selbst angelegten Rezepten können außerdem Online-Rezepte über die externe API TheMealDB gesucht und mit dem aktuellen Vorrat verglichen werden.
+
+
 ## Funktionen
 
 Das Backend bietet unter anderem:
@@ -24,6 +27,12 @@ Das Backend bietet unter anderem:
 - Seed-Skript mit Beispieldaten
 - Verbindung zu MongoDB
 - Fehlerbehandlung über HTTP-Statuscodes
+- Online-Rezeptempfehlungen über TheMealDB
+- automatische Suche nach Online-Rezepten anhand des Vorrats
+- Vergleich von Online-Rezeptzutaten mit vorhandenen Zutaten
+- Berechnung eines Match-Prozentwertes für Online-Rezepte
+- Anzeige fehlender Zutaten
+
 
 ## Technologien
 
@@ -36,8 +45,11 @@ Für das Backend werden verwendet:
 - JavaScript
 - dotenv
 - CORS
+- Fetch API
+- TheMealDB API
 - Git
 - GitHub
+
 
 ## Voraussetzungen
 
@@ -49,6 +61,7 @@ Für die lokale Ausführung werden benötigt:
 - Git
 
 MongoDB muss lokal laufen.
+
 
 ## Installation
 
@@ -70,6 +83,7 @@ Abhängigkeiten installieren:
 npm install
 ```
 
+
 ## Umgebungsvariablen
 
 Im Hauptordner des Backends muss eine Datei mit dem Namen `.env` angelegt werden.
@@ -81,7 +95,8 @@ DB_CONNECTION=mongodb://127.0.0.1:27017
 DATABASE=fridgechef
 ```
 
-Die `.env`-Datei wird nicht in Git gespeichert.
+Die `.env`-Datei enthält lokale Konfigurationsdaten und wird nicht in Git gespeichert.
+
 
 ## Seed-Daten
 
@@ -91,9 +106,10 @@ Mit dem Seed-Skript können Beispieldaten für den Vorrat und mehrere Rezepte an
 node seed.js
 ```
 
-Dabei werden die vorhandenen Zutaten und Rezepte der verwendeten Datenbank gelöscht und anschließend durch die definierten Beispieldaten ersetzt.
+Dabei werden die vorhandenen Zutaten und Rezepte der verwendeten Datenbank gelöscht und anschließend durch die im Seed-Skript definierten Beispieldaten ersetzt.
 
 Das Seed-Skript dient dazu, schnell einen reproduzierbaren Testzustand herzustellen.
+
 
 ## Backend starten
 
@@ -103,7 +119,7 @@ Das Backend kann im Watch-Modus gestartet werden:
 node --watch server.js
 ```
 
-Danach läuft die API unter:
+Danach läuft die API standardmäßig unter:
 
 ```text
 http://localhost:3000
@@ -116,9 +132,10 @@ Server läuft auf Port 3000
 Mit MongoDB verbunden
 ```
 
-## API
 
-### Zutaten
+# API
+
+## Zutaten
 
 Alle Zutaten laden:
 
@@ -150,7 +167,8 @@ Zutat löschen:
 DELETE /api/ingredients/:id
 ```
 
-### Rezepte
+
+## Rezepte
 
 Alle Rezepte laden:
 
@@ -182,7 +200,8 @@ Rezept löschen:
 DELETE /api/recipes/:id
 ```
 
-### Matching
+
+## Matching
 
 Matching für ein Rezept berechnen:
 
@@ -203,7 +222,52 @@ Beispiel eines Matching-Ergebnisses:
 }
 ```
 
-## Matching-Logik
+
+## Online-Rezepte
+
+Online-Rezeptempfehlungen laden:
+
+```text
+GET /api/online-recipes
+```
+
+Der Endpunkt liest zuerst die vorhandenen Zutaten aus MongoDB.
+
+Anschließend werden passende Rezepte über die externe TheMealDB-API gesucht.
+
+Die Zutaten der gefundenen Rezepte werden mit dem aktuellen Vorrat verglichen. Aus dem Ergebnis wird ein Match-Prozentwert berechnet.
+
+Die Empfehlungen werden anschließend nach dem Match-Prozent sortiert.
+
+Beispiel eines vereinfachten Ergebnisses:
+
+```json
+{
+  "id": "53334",
+  "title": "Arepa Pabellón",
+  "image": "https://www.themealdb.com/images/media/meals/example.jpg",
+  "matchPercent": 13,
+  "category": "nicht kochbar",
+  "totalIngredients": 8,
+  "matchedIngredients": 1,
+  "missingIngredients": []
+}
+```
+
+Die Antwort kann zusätzlich Informationen enthalten wie:
+
+- Rezeptbild
+- Zutaten
+- Mengenangaben der Online-API
+- fehlende Zutaten
+- Originalquelle
+- YouTube-Link
+- Zubereitungsbeschreibung
+
+
+# Matching-Logik
+
+## Matching eigener Rezepte
 
 Für jede Rezeptzutat wird geprüft:
 
@@ -225,7 +289,42 @@ Die Kategorien sind:
 unter 50 %  → nicht kochbar
 ```
 
-## Projektstruktur
+
+## Matching von Online-Rezepten
+
+Bei Online-Rezepten wird ein vereinfachtes Matching verwendet.
+
+Dabei wird hauptsächlich geprüft, ob eine benötigte Zutat im Vorrat vorhanden ist.
+
+Der Grund dafür ist, dass TheMealDB Mengen und Einheiten teilweise als freien Text liefert.
+
+Beispiele:
+
+```text
+1 cup
+2 tbsp
+Pinch
+1/2 package
+```
+
+Diese Werte können nicht zuverlässig direkt mit den Mengen und Einheiten des FridgeChef-Vorrats verglichen werden.
+
+Deshalb wird beim Online-Matching hauptsächlich mit den Namen der Zutaten gearbeitet.
+
+Für einige häufig verwendete deutsche Zutaten werden außerdem einfache englische Übersetzungen verwendet, damit sie mit den Zutatenbezeichnungen von TheMealDB verglichen werden können.
+
+Beispiele:
+
+```text
+Tomate → tomato
+Milch → milk
+Kartoffel → potato
+Zwiebel → onion
+Käse → cheese
+```
+
+
+# Projektstruktur
 
 ```text
 fridgechef-backend
@@ -235,6 +334,7 @@ fridgechef-backend
 ├── matching.js
 ├── matchingRoutes.js
 ├── matching.test.js
+├── onlineRecipeRoutes.js
 ├── recipeRoutes.js
 ├── routes.js
 ├── seed.js
@@ -243,7 +343,8 @@ fridgechef-backend
 └── README.md
 ```
 
-## Tests
+
+# Tests
 
 Die API wurde während der Entwicklung unter anderem mit Thunder Client getestet.
 
@@ -257,8 +358,12 @@ Getestet wurden:
 - nicht vorhandene Datensätze
 - Matching
 - leerer Vorrat
-- Groß-/Kleinschreibung
+- Groß- und Kleinschreibung
 - Mengenentscheidungen
+- Online-Rezept-Endpunkt
+- Verbindung zu TheMealDB
+- Online-Matching
+- fehlende Zutaten bei Online-Rezepten
 
 Zusätzlich können die Matching-Grenzfälle mit folgendem Skript getestet werden:
 
@@ -266,7 +371,8 @@ Zusätzlich können die Matching-Grenzfälle mit folgendem Skript getestet werde
 node matching.test.js
 ```
 
-## Frontend
+
+# Frontend
 
 Das zugehörige Angular-Frontend befindet sich in einem separaten Repository:
 
@@ -274,13 +380,20 @@ Das zugehörige Angular-Frontend befindet sich in einem separaten Repository:
 fridgechef-frontend
 ```
 
-Das Frontend verwendet diese REST-API über:
+Repository:
+
+```text
+https://github.com/Sabienas602518/fridgechef-frontend
+```
+
+Das Frontend verwendet die REST-API über:
 
 ```text
 http://localhost:3000/api
 ```
 
-## KI-Werkzeuge
+
+# KI-Werkzeuge
 
 Bei der Entwicklung wurde ChatGPT unterstützend verwendet.
 
@@ -295,16 +408,24 @@ Einsatzbereiche waren insbesondere:
 
 Der erzeugte bzw. vorgeschlagene Code wurde in das Projekt integriert, angepasst und praktisch getestet.
 
-## Autorin
 
-WebTech-Semesterprojekt  
-FridgeChef
-
-## Deployment
+# Deployment
 
 Das Projekt ist für ein späteres Deployment vorbereitet.
 
-Der Backend-Port wird über eine Umgebungsvariable gelesen:
+Der Backend-Port wird über eine Umgebungsvariable gelesen.
 
-```text
-PORT
+Falls keine Umgebungsvariable gesetzt ist, wird standardmäßig Port 3000 verwendet.
+
+```javascript
+const PORT = process.env.PORT || 3000;
+```
+
+Dadurch kann das Backend sowohl lokal als auch auf einer Hosting-Plattform mit einem vorgegebenen Port gestartet werden.
+
+
+# Autorin
+
+WebTech-Semesterprojekt
+
+FridgeChef
