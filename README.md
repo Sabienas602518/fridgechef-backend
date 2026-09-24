@@ -230,14 +230,15 @@ Online-Rezeptempfehlungen laden:
 ```text
 GET /api/online-recipes
 ```
-
 Der Endpunkt liest zuerst die vorhandenen Zutaten aus MongoDB.
 
 Anschließend werden passende Rezepte über die externe TheMealDB-API gesucht.
 
 Die Zutaten der gefundenen Rezepte werden mit dem aktuellen Vorrat verglichen. Aus dem Ergebnis wird ein Match-Prozentwert berechnet.
 
-Die Empfehlungen werden anschließend nach dem Match-Prozent sortiert.
+Für die Online-Empfehlungen werden mehrere gefundene Rezepte geprüft, nach ihrem Match-Prozentwert sortiert und anschließend die besten Treffer an das Frontend zurückgegeben.
+
+Häufig verwendete deutsche Zutaten werden in englische Begriffe umgewandelt, da TheMealDB englische Zutatenbezeichnungen verwendet.
 
 Beispiel eines vereinfachten Ergebnisses:
 
@@ -340,6 +341,7 @@ fridgechef-backend
 ├── seed.js
 ├── server.js
 ├── package.json
+├── package-lock.json
 └── README.md
 ```
 
@@ -395,18 +397,18 @@ http://localhost:3000/api
 
 # KI-Werkzeuge
 
-Bei der Entwicklung wurde ChatGPT unterstützend verwendet.
+ChatGPT :
 
-Einsatzbereiche waren insbesondere:
+Einsatzbereiche:
 
-- Erklärung von JavaScript- und TypeScript-Konzepten
+- Fragen zu JavaScript, Node.js und Express
 - Unterstützung bei der Fehlersuche
 - Erklärung von Fehlermeldungen
-- Vorschläge zur Strukturierung von Code
-- Unterstützung beim Refactoring
-- Unterstützung bei Tests und Dokumentation
+- Unterstützung bei der Einbindung von Online-Rezepten über TheMealDB
+- Unterstützung bei Tests
+- Unterstützung bei der Dokumentation
 
-Der erzeugte bzw. vorgeschlagene Code wurde in das Projekt integriert, angepasst und praktisch getestet.
+Die Vorschläge wurden in das eigene Projekt integriert, angepasst und praktisch getestet.
 
 
 # Deployment
@@ -425,7 +427,6 @@ Dadurch kann das Backend sowohl lokal als auch auf einer Hosting-Plattform mit e
 
 
 # Autorin
-
-WebTech-Semesterprojekt
+Sabiena Jeyaragawan, 2026
 
 FridgeChef
