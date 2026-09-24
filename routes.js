@@ -57,7 +57,7 @@ router.patch('/ingredients/:id', async(req, res) => {
             ingredient.name = req.body.name;
         }
 
-        if (req.body.quantity) {
+        if (req.body.quantity !== undefined) {
             ingredient.quantity = req.body.quantity;
         }
 
