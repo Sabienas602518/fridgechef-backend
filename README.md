@@ -408,6 +408,7 @@ Einsatzbereiche:
 - Unterstützung bei Tests
 - Unterstützung bei der Dokumentation
 
+
 Die Vorschläge wurden in das eigene Projekt integriert, angepasst und praktisch getestet.
 
 
