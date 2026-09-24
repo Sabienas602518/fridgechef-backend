@@ -47,7 +47,7 @@ router.get('/ingredients/:id', async(req, res) => {
 });
 
 
-
+// PATCH - eine Zutat aktualisieren
 router.patch('/ingredients/:id', async(req, res) => {
     try {
         const ingredient =
@@ -87,7 +87,7 @@ router.patch('/ingredients/:id', async(req, res) => {
         });
     }
 });
-
+// DELETE - eine Zutat löschen
 router.delete('/ingredients/:id', async(req, res) => {
     try {
         await Ingredient.deleteOne({
