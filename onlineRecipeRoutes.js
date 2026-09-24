@@ -11,77 +11,56 @@ function translateIngredient(name) {
     const ingredientName =
         name.trim().toLowerCase();
 
-    if (
-        ingredientName === 'tomate' ||
-        ingredientName === 'tomaten'
-    ) {
-        return 'tomato';
-    }
+    const translations = {
+        tomate: 'tomato',
+        tomaten: 'tomato',
 
-    if (
-        ingredientName === 'nudeln' ||
-        ingredientName === 'pasta'
-    ) {
-        return 'pasta';
-    }
+        nudeln: 'pasta',
+        pasta: 'pasta',
 
-    if (ingredientName === 'milch') {
-        return 'milk';
-    }
+        milch: 'milk',
 
-    if (
-        ingredientName === 'apfel' ||
-        ingredientName === 'äpfel'
-    ) {
-        return 'apple';
-    }
+        apfel: 'apple',
+        äpfel: 'apple',
 
-    if (
-        ingredientName === 'banane' ||
-        ingredientName === 'bananen'
-    ) {
-        return 'banana';
-    }
+        banane: 'banana',
+        bananen: 'banana',
 
-    if (
-        ingredientName === 'kartoffel' ||
-        ingredientName === 'kartoffeln'
-    ) {
-        return 'potato';
-    }
+        kartoffel: 'potato',
+        kartoffeln: 'potato',
 
-    if (ingredientName === 'reis') {
-        return 'rice';
-    }
+        reis: 'rice',
 
-    if (
-        ingredientName === 'ei' ||
-        ingredientName === 'eier'
-    ) {
-        return 'egg';
-    }
+        ei: 'egg',
+        eier: 'egg',
 
-    if (
-        ingredientName === 'zwiebel' ||
-        ingredientName === 'zwiebeln'
-    ) {
-        return 'onion';
-    }
+        zwiebel: 'onion',
+        zwiebeln: 'onion',
 
-    if (ingredientName === 'käse') {
-        return 'cheese';
-    }
+        käse: 'cheese',
+        butter: 'butter',
+        mehl: 'flour',
 
-    if (ingredientName === 'butter') {
-        return 'butter';
-    }
+        ingwer: 'ginger',
 
-    if (ingredientName === 'mehl') {
-        return 'flour';
-    }
+        öl: 'oil',
+        oel: 'oil',
 
-    return ingredientName;
+        wasser: 'water',
+
+        brokkoli: 'broccoli',
+        paprika: 'bell pepper',
+        knoblauch: 'garlic',
+        karotte: 'carrot',
+        karotten: 'carrot',
+        hähnchen: 'chicken',
+        huhn: 'chicken'
+    };
+
+    return translations[ingredientName]
+        || ingredientName;
 }
+
 
 
 // Zutaten eines Online-Rezeptes auslesen.
@@ -236,16 +215,16 @@ router.get('/', async(req, res) => {
             }
         }
 
+// Mehr gefundene Rezepte prüfen,
+// damit bessere Treffer gefunden werden können.
+const recommendations = [];
 
-        // Wir laden maximal 10 Rezepte.
-        const recommendations = [];
 
-
-        const maximumRecipes =
-            Math.min(
-                foundRecipes.length,
-                10
-            );
+const maximumRecipes =
+    Math.min(
+        foundRecipes.length,
+        30
+    );
 
 
         for (
@@ -469,9 +448,10 @@ router.get('/', async(req, res) => {
         );
 
 
+        // Nur die 5 besten Treffer senden.
         res.status(200);
         res.send(
-            recommendations
+            recommendations.slice(0, 5)
         );
 
     } catch (error) {
