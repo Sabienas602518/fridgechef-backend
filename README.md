@@ -16,7 +16,7 @@ Das Backend bietet unter anderem:
 - Verwaltung von Vorratszutaten
 - CRUD für Zutaten
 - Verwaltung von Rezepten
-- CRUD für Rezepte
+- CRUD für Rezepte    
 - verschachtelte Rezeptzutaten
 - Matching zwischen Vorrat und Rezept
 - Berechnung des Match-Prozentwertes
